@@ -68,7 +68,14 @@ namespace BitchlandAllNPCsAreAlwaysFuckableBepInEx
                 {
                     psState = (int)person.State;
                 } catch (Exception e) {
-                    psState = (int)Person_State.Work;
+                    try
+                    {
+                        psState = (int)Person_State.Work;
+                    }
+                    catch (Exception e2)
+                    {
+                        psState = 1;
+                    }
                 }
 
                 if(!personsDict.ContainsKey(name))
@@ -77,7 +84,6 @@ namespace BitchlandAllNPCsAreAlwaysFuckableBepInEx
                 }
 
                 person.State = Person_State.Free;
-                Main.Instance.GameplayMenu.ShowNotification("PersonState is set to free");
             }
         }
 
@@ -98,11 +104,6 @@ namespace BitchlandAllNPCsAreAlwaysFuckableBepInEx
                     }
 
                     person.State = ps;
-
-                    if (ps == Person_State.Work)
-                    {
-                        Main.Instance.GameplayMenu.ShowNotification("PersonState is set to work");
-                    }
 
                     personsDict.Remove(name);
                 }
@@ -132,6 +133,7 @@ namespace BitchlandAllNPCsAreAlwaysFuckableBepInEx
                 {
                     addPersonToDict(_this.ThisPerson);
                 }
+
             } catch (Exception ex)
             {
             }
