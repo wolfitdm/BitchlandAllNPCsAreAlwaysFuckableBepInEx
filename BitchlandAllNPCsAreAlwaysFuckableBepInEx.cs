@@ -53,6 +53,7 @@ namespace BitchlandAllNPCsAreAlwaysFuckableBepInEx
         }
 
         private static List<string> persons = new List<string>();
+        private static Dictionary<string,int> personsDict = new Dictionary<string,int>();
 
         private static void addPersonToDict(Person person)
         {
@@ -60,6 +61,23 @@ namespace BitchlandAllNPCsAreAlwaysFuckableBepInEx
             if (!persons.Contains(name))
             {
                 persons.Add(name);
+                
+                int psState = 0;
+
+                try
+                {
+                    psState = (int)person.State;
+                } catch (Exception e) {
+                    psState = (int)Person_State.Work;
+                }
+
+                if(!personsDict.ContainsKey(name))
+                {
+                    personsDict.Add(name, psState);
+                }
+
+                person.State = Person_State.Free;
+                Main.Instance.GameplayMenu.ShowNotification("PersonState is set to free");
             }
         }
 
@@ -68,7 +86,26 @@ namespace BitchlandAllNPCsAreAlwaysFuckableBepInEx
             string name = person.Name;
             if (persons.Contains(name))
             {
-                person.State = Person_State.Work;
+                if (personsDict.ContainsKey(name))
+                {
+                    Person_State ps = Person_State.Work;
+                    
+                    try
+                    {
+                        ps = (Person_State)personsDict[name];
+                    } catch (Exception ex) {
+                        ps = Person_State.Work;
+                    }
+
+                    person.State = ps;
+
+                    if (ps == Person_State.Work)
+                    {
+                        Main.Instance.GameplayMenu.ShowNotification("PersonState is set to work");
+                    }
+
+                    personsDict.Remove(name);
+                }
                 persons.Remove(name);
             }
         }
@@ -91,10 +128,9 @@ namespace BitchlandAllNPCsAreAlwaysFuckableBepInEx
                     return true;
                 }
 
-                if (_this.ThisPerson.State == Person_State.Work)
+                if (_this.ThisPerson.State != Person_State.Free)
                 {
                     addPersonToDict(_this.ThisPerson);
-                    _this.ThisPerson.State = Person_State.Free;
                 }
             } catch (Exception ex)
             {
